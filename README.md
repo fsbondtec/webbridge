@@ -44,6 +44,8 @@ The solution is based on **webview** (C++ wrapper for Microsoft WebView2/Chromiu
 - A C++20 compiler (currently Windows/MSVC only, via WebView2)
 - Python 3 with `tree-sitter`, `tree-sitter-cpp`, and `jinja2` available at CMake configure time (used by the code generator — see `environment.yml` for exact versions)
 
+No Conan, vcpkg, or any other package manager is required to build the library itself — both of its C++ dependencies (`nlohmann_json`, `webview`) are fetched by CMake's own `FetchContent`, the same way webbridge itself is meant to be pulled into your project.
+
 Pull webbridge in via `FetchContent` and link against it:
 
 ```cmake
@@ -58,7 +60,7 @@ FetchContent_MakeAvailable(webbridge)
 target_link_libraries(your_target PRIVATE webbridge::webbridge)
 ```
 
-This pulls in only the library and its two real dependencies (`nlohmann_json`, `webview`) — none of the demo's dependencies (frontend, httplib, portable-file-dialogs, fmt, argparse) are included, since `WEBBRIDGE_BUILD_EXAMPLES` defaults to off when webbridge is consumed this way rather than built standalone.
+This pulls in only the library and its two real dependencies (`nlohmann_json`, `webview`, both fetched by CMake) — none of the demo's dependencies (frontend, httplib, portable-file-dialogs, fmt, argparse) are included, since `WEBBRIDGE_BUILD_EXAMPLES` defaults to off when webbridge is consumed this way rather than built standalone.
 
 To generate the registration/TypeScript code for your own `webbridge::object` classes, call the same function the example uses:
 

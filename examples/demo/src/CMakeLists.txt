@@ -1,7 +1,10 @@
 find_package(fmt REQUIRED)
-find_package(nlohmann_json REQUIRED)
 find_package(httplib REQUIRED)
 find_package(portable-file-dialogs REQUIRED)
+
+# nlohmann_json comes transitively from linking webbridge::webbridge (which
+# FetchContent's it) - do not find_package() it again here, it would collide
+# with the already-defined nlohmann_json::nlohmann_json target.
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 

@@ -14,7 +14,16 @@ include(webbridge)
 include(FetchContent)
 
 find_package(Python REQUIRED COMPONENTS Interpreter)
-find_package(nlohmann_json REQUIRED)
+
+# Both dependencies are fetched by CMake itself (no Conan/vcpkg/system install
+# required) so the library builds with nothing but CMake + a C++20 compiler.
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+FetchContent_Declare(
+	nlohmann_json
+	GIT_REPOSITORY https://github.com/nlohmann/json
+	GIT_TAG v3.11.3
+	GIT_SHALLOW TRUE)
+FetchContent_MakeAvailable(nlohmann_json)
 
 FetchContent_Declare(
 	webview
