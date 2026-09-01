@@ -22,7 +22,7 @@
 #include "event_impl.h"
 #include "concepts.h"
 #include "../object.h"
-#include "../Error.h"
+#include "../error.h"
 
 namespace webbridge::impl {
 

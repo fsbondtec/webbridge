@@ -1,10 +1,13 @@
 find_program(NPM_EXECUTABLE npm REQUIRED)
 message(STATUS "Found npm: ${NPM_EXECUTABLE}")
 
-# Generate TypeScript implementation files for C++ classes
+# Generate TypeScript implementation files for C++ classes.
+# Resolved relative to this file (examples/demo/frontend/), not CMAKE_SOURCE_DIR,
+# since CMAKE_SOURCE_DIR is the webbridge library's own root, not this example's.
 set(WEBBRIDGE_HEADER_FILES
-	${CMAKE_SOURCE_DIR}/src/MyObject.h
-	${CMAKE_SOURCE_DIR}/src/TestObject.h
+	${CMAKE_CURRENT_SOURCE_DIR}/../src/MyObject.h
+	${CMAKE_CURRENT_SOURCE_DIR}/../src/TestObject.h
+	${CMAKE_CURRENT_SOURCE_DIR}/../src/HelloWorld.h
 )
 
 # Output to frontend/src/generated directory (gitignored)

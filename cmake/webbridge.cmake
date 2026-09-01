@@ -1,3 +1,5 @@
+get_filename_component(WEBBRIDGE_ROOT_DIR "${CMAKE_CURRENT_LIST_DIR}/.." ABSOLUTE)
+
 # Helper function to parse discoverer output
 function(_parse_discoverer_output discoverer_output out_var)
 	set(result)
@@ -88,7 +90,7 @@ function(webbridge_generate)
 		if(header_files)
 			execute_process(
 				COMMAND ${Python_EXECUTABLE}
-				${CMAKE_SOURCE_DIR}/tools/discoverer.py
+				${WEBBRIDGE_ROOT_DIR}/tools/discoverer.py
 					${header_files}
 				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 				OUTPUT_VARIABLE discoverer_output
@@ -113,7 +115,7 @@ function(webbridge_generate)
 
 		execute_process(
 			COMMAND ${Python_EXECUTABLE}
-			${CMAKE_SOURCE_DIR}/tools/discoverer.py
+			${WEBBRIDGE_ROOT_DIR}/tools/discoverer.py
 				${abs_files}
 			WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 			OUTPUT_VARIABLE discoverer_output
@@ -166,12 +168,12 @@ function(webbridge_generate)
 	# Determine template files and python args based on LANGUAGE
 	if(arg_LANGUAGE STREQUAL "cpp")
 		set(template_files 
-			"${CMAKE_SOURCE_DIR}/tools/templates/registration_header.h.j2"
-			"${CMAKE_SOURCE_DIR}/tools/templates/registration_impl.cpp.j2"
+			"${WEBBRIDGE_ROOT_DIR}/tools/templates/registration_header.h.j2"
+			"${WEBBRIDGE_ROOT_DIR}/tools/templates/registration_impl.cpp.j2"
 		)
 		set(python_out_arg --cpp_out)
 	elseif(arg_LANGUAGE STREQUAL "ts-impl")
-		set(template_files "${CMAKE_SOURCE_DIR}/tools/templates/impl.ts.j2")
+		set(template_files "${WEBBRIDGE_ROOT_DIR}/tools/templates/impl.ts.j2")
 		set(python_out_arg --ts_impl_out)
 	else()
 		message(FATAL_ERROR "Invalid LANGUAGE: ${arg_LANGUAGE}. Must be 'cpp' or 'ts-impl'")
@@ -182,15 +184,15 @@ function(webbridge_generate)
 	add_custom_command(
 		OUTPUT ${all_output_files}
 		COMMAND ${Python_EXECUTABLE}
-			${CMAKE_SOURCE_DIR}/tools/generate.py
+			${WEBBRIDGE_ROOT_DIR}/tools/generate.py
 			--batch
 			${batch_args}
 			${python_out_arg}
 			${arg_OUTPUT_DIR}
 		DEPENDS
-			${CMAKE_SOURCE_DIR}/tools/generate.py
-			${CMAKE_SOURCE_DIR}/tools/parser.py
-			${CMAKE_SOURCE_DIR}/tools/tstypes.py
+			${WEBBRIDGE_ROOT_DIR}/tools/generate.py
+			${WEBBRIDGE_ROOT_DIR}/tools/parser.py
+			${WEBBRIDGE_ROOT_DIR}/tools/tstypes.py
 			${template_files}
 			${all_input_files}
 		COMMENT "Generating ${arg_LANGUAGE} (batch of ${file_count} files)"

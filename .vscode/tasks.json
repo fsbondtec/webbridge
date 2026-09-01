@@ -137,7 +137,7 @@
 				"npm install && npm run build"
 			],
 			"options": {
-				"cwd": "${workspaceFolder}/frontend"
+				"cwd": "${workspaceFolder}/examples/demo/frontend"
 			},
 			"group": "build",
 			"problemMatcher": [],
@@ -156,7 +156,7 @@
 				"if exist dist rmdir /s /q dist && npm run build"
 			],
 			"options": {
-				"cwd": "${workspaceFolder}/frontend"
+				"cwd": "${workspaceFolder}/examples/demo/frontend"
 			},
 			"group": "build",
 			"problemMatcher": [],
