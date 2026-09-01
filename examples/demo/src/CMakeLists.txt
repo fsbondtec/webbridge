@@ -1,10 +1,7 @@
-find_package(fmt REQUIRED)
-find_package(httplib REQUIRED)
-find_package(portable-file-dialogs REQUIRED)
-
-# nlohmann_json comes transitively from linking webbridge::webbridge (which
-# FetchContent's it) - do not find_package() it again here, it would collide
-# with the already-defined nlohmann_json::nlohmann_json target.
+# fmt, httplib, portable_file_dialogs, and (transitively via webbridge)
+# nlohmann_json are all FetchContent'd by examples/demo/CMakeLists.txt /
+# root CMakeLists.txt - do not find_package() any of them here, that would
+# collide with the already-defined targets of the same name.
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -34,7 +31,7 @@ target_link_libraries(webbridge_hackathon PRIVATE
 	fmt::fmt
 	nlohmann_json::nlohmann_json
 	httplib::httplib
-	portable-file-dialogs::portable-file-dialogs
+	portable_file_dialogs
 	frontend_resources
 )
 

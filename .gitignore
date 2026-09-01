@@ -24,17 +24,6 @@ CTestTestfile.cmake
 _deps/
 *-prefix/
 
-# Conan Package Manager
-conan.lock
-conanbuildinfo.*
-conaninfo.txt
-graph_info.json
-Find*.cmake
-conan_paths.*
-activate_run.*
-deactivate_run.*
-environment_run.*
-
 # Python
 venv/
 .venv/

@@ -1,4 +1,10 @@
-get_filename_component(WEBBRIDGE_ROOT_DIR "${CMAKE_CURRENT_LIST_DIR}/.." ABSOLUTE)
+get_filename_component(_webbridge_root_dir "${CMAKE_CURRENT_LIST_DIR}/.." ABSOLUTE)
+# CACHE INTERNAL (not a plain set()) so this is visible from webbridge_generate()
+# regardless of which directory scope calls it. A plain set() is only visible
+# in this directory and its descendants - it would be invisible again once
+# control returns to a *parent* scope (e.g. a consumer's own CMakeLists.txt
+# calling webbridge_generate() after add_subdirectory(webbridge) returns).
+set(WEBBRIDGE_ROOT_DIR "${_webbridge_root_dir}" CACHE INTERNAL "")
 
 # Helper function to parse discoverer output
 function(_parse_discoverer_output discoverer_output out_var)
@@ -205,8 +211,20 @@ function(webbridge_generate)
 			set_source_files_properties(${output_file} PROPERTIES GENERATED TRUE)
 		endforeach()
 		target_sources(${arg_TARGET} PRIVATE ${all_output_files})
-		
+
 		# Add generated header directory to include path
 		target_include_directories(${arg_TARGET} PRIVATE ${arg_OUTPUT_DIR})
+
+		# The generated *_registration.cpp files #include the original class
+		# header by name (e.g. "Counter.h"), so its directory must be on the
+		# include path too. Don't rely on the caller having set
+		# CMAKE_INCLUDE_CURRENT_DIR themselves.
+		set(input_dirs)
+		foreach(input_file ${all_input_files})
+			get_filename_component(input_dir "${input_file}" DIRECTORY)
+			list(APPEND input_dirs "${input_dir}")
+		endforeach()
+		list(REMOVE_DUPLICATES input_dirs)
+		target_include_directories(${arg_TARGET} PRIVATE ${input_dirs})
 	endif()
 endfunction()

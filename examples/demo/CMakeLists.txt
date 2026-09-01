@@ -13,5 +13,28 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(cmrc)
 
+set(FMT_INSTALL OFF CACHE INTERNAL "")
+FetchContent_Declare(
+	fmt
+	GIT_REPOSITORY https://github.com/fmtlib/fmt
+	GIT_TAG 11.0.2
+	GIT_SHALLOW TRUE)
+FetchContent_MakeAvailable(fmt)
+
+set(HTTPLIB_COMPILE OFF CACHE INTERNAL "")
+FetchContent_Declare(
+	httplib
+	GIT_REPOSITORY https://github.com/yhirose/cpp-httplib
+	GIT_TAG v0.18.1
+	GIT_SHALLOW TRUE)
+FetchContent_MakeAvailable(httplib)
+
+FetchContent_Declare(
+	portable_file_dialogs
+	GIT_REPOSITORY https://github.com/samhocevar/portable-file-dialogs
+	GIT_TAG 0.1.0
+	GIT_SHALLOW TRUE)
+FetchContent_MakeAvailable(portable_file_dialogs)
+
 add_subdirectory(frontend)
 add_subdirectory(src)

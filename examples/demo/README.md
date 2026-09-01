@@ -5,23 +5,21 @@ This is the example application from the root [README.md](../../README.md): a fu
 ## Prerequisites
 
 - **Visual Studio 2022** with C++ Desktop Development (MSVC compiler)
-- **Conan 2** (`pip install conan`)
 - **CMake 3.26+**
-- **Anaconda3** or Miniconda
+- **Python 3** (for the code generator)
 - **Node.js** (for the frontend build)
 - **Microsoft Edge WebView2 Runtime** (usually preinstalled on Windows 10/11)
-- **Ninja** (included in the conda environment)
+
+No Conan, vcpkg, or Conda needed — every C++ dependency (both the library's and this example's) is fetched by CMake's own `FetchContent`, and the build uses the Visual Studio generator directly (no separate Ninja install or Developer Command Prompt required).
 
 ## Setup
 
-**1. Create the Conda environment**
+**1. Install the code generator's Python packages**
 
-The environment includes Python 3.12 and the packages required by the code generator (tree-sitter, jinja2). Run this from the **repository root**:
+Run this once, from the **repository root**, with whichever `python`/`pip` you want CMake to find (a plain global install is fine — no virtual environment is required, though you're welcome to use one):
 
 ```bash
-conda env create -f environment.yml
-# or, if the environment already exists:
-conda env update --file environment.yml --name webbridge_hackathon --prune
+pip install -r requirements.txt
 ```
 
 **2. Configure and build**
@@ -32,11 +30,7 @@ conda env update --file environment.yml --name webbridge_hackathon --prune
 configure.bat
 ```
 
-`configure.bat` will:
-- Activate the Conda environment
-- Install C++ dependencies via Conan (nlohmann_json for the library; fmt, argparse, cpp-httplib, portable-file-dialogs for this example)
-- Initialize the MSVC environment for Ninja
-- Generate the CMake build configuration with Ninja Multi-Config for all build types (Debug, Release, RelWithDebInfo, MinSizeRel)
+`configure.bat` generates the CMake build (Visual Studio 17 2022 generator) for the `webbridge` library and this example together, fetching every C++ dependency via `FetchContent` along the way.
 
 Then build:
 

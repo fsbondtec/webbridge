@@ -1,14 +1,23 @@
 cmake_minimum_required(VERSION 3.26)
 
-set(CMAKE_TRY_COMPILE_CONFIGURATION Release)
+# Must be set before project() to control the MSVC runtime library selection
+# below (previously handled for us by Conan's generated toolchain file).
+cmake_policy(SET CMP0091 NEW)
 
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+# CMAKE_CURRENT_SOURCE_DIR (not CMAKE_SOURCE_DIR) so this still finds
+# cmake/webbridge.cmake when webbridge is add_subdirectory()'d/FetchContent'd
+# from another project - CMAKE_SOURCE_DIR would then point at the consumer's
+# root instead of this one.
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 project(
 	webbridge
 	VERSION 1.0.0
 	LANGUAGES CXX C
 )
+
+# Match the dynamic (DLL) MSVC runtime that webview/WebView2 expect.
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 
 include(webbridge)
 include(FetchContent)

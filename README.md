@@ -42,7 +42,7 @@ The solution is based on **webview** (C++ wrapper for Microsoft WebView2/Chromiu
 
 - CMake 3.26+
 - A C++20 compiler (currently Windows/MSVC only, via WebView2)
-- Python 3 with `tree-sitter`, `tree-sitter-cpp`, and `jinja2` available at CMake configure time (used by the code generator — see `environment.yml` for exact versions)
+- Python 3 with `tree-sitter`, `tree-sitter-cpp`, and `jinja2` available at CMake configure time (used by the code generator — `pip install -r requirements.txt` covers this; see that file for exact versions)
 
 No Conan, vcpkg, or any other package manager is required to build the library itself — both of its C++ dependencies (`nlohmann_json`, `webview`) are fetched by CMake's own `FetchContent`, the same way webbridge itself is meant to be pulled into your project.
 
