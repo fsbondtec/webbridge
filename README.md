@@ -60,7 +60,7 @@ Add this to your project's `CMakeLists.txt` to fetch from the git repository:
 include(FetchContent)
 FetchContent_Declare(
     webbridge
-    GIT_REPOSITORY https://github.com/fsbondtec/webbridge-hackathon.git
+    GIT_REPOSITORY https://github.com/fsbondtec/webbridge.git
     GIT_TAG v1.0.0
 )
 FetchContent_MakeAvailable(webbridge)
