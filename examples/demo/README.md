@@ -14,23 +14,13 @@ No Conan, vcpkg, or Conda needed — every C++ dependency (both the library's an
 
 ## Setup
 
-**1. Install the code generator's Python packages**
-
-Run this once, from the **repository root**, with whichever `python`/`pip` you want CMake to find (a plain global install is fine — no virtual environment is required, though you're welcome to use one):
-
-```bash
-pip install -r requirements.txt
-```
-
-**2. Configure and build**
-
 `configure.bat` and `build.bat` live at the **repository root**, not in this folder — they build the `webbridge` library and this example together. Run them from the repository root:
 
 ```bash
 configure.bat
 ```
 
-`configure.bat` generates the CMake build (Visual Studio 17 2022 generator) for the `webbridge` library and this example together, fetching every C++ dependency via `FetchContent` along the way.
+`configure.bat` runs `cmake --preset windows-vs2022` (see the root `CMakePresets.json`), which generates the CMake build for the `webbridge` library and this example together, fetching every C++ dependency via `FetchContent` along the way. It also provisions an isolated Python venv for the code generator on first configure — no manual `pip install` step needed.
 
 Then build:
 

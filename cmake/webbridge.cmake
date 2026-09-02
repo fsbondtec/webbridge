@@ -6,6 +6,76 @@ get_filename_component(_webbridge_root_dir "${CMAKE_CURRENT_LIST_DIR}/.." ABSOLU
 # calling webbridge_generate() after add_subdirectory(webbridge) returns).
 set(WEBBRIDGE_ROOT_DIR "${_webbridge_root_dir}" CACHE INTERNAL "")
 
+# Reset each time this file is include()'d (i.e. once per configure), so
+# _webbridge_ensure_python_env() re-checks the requirements.txt hash on every
+# configure, but only does that check once even if webbridge_generate() is
+# called multiple times within the same configure.
+unset(_WEBBRIDGE_PYENV_ENSURED CACHE)
+
+option(WEBBRIDGE_SKIP_AUTO_PYENV
+	"Skip auto-provisioning an isolated Python venv for the code generator; use the system Python interpreter directly (for advanced users managing their own environment/CI image)"
+	OFF)
+
+# Ensures WEBBRIDGE_PYTHON_EXECUTABLE points at a Python interpreter that has
+# the code generator's dependencies (jinja2, tree-sitter, tree-sitter-cpp)
+# installed, provisioning an isolated venv under the build directory on first
+# use so consumers don't need to `pip install -r requirements.txt` themselves.
+function(_webbridge_ensure_python_env)
+	if(_WEBBRIDGE_PYENV_ENSURED)
+		return()
+	endif()
+	set(_WEBBRIDGE_PYENV_ENSURED TRUE CACHE INTERNAL "")
+
+	find_package(Python REQUIRED COMPONENTS Interpreter)
+
+	if(WEBBRIDGE_SKIP_AUTO_PYENV)
+		set(WEBBRIDGE_PYTHON_EXECUTABLE "${Python_EXECUTABLE}" CACHE INTERNAL "")
+		return()
+	endif()
+
+	set(venv_dir "${CMAKE_BINARY_DIR}/webbridge_venv")
+	set(venv_python "${venv_dir}/Scripts/python.exe")
+	set(stamp_file "${venv_dir}/requirements.sha256")
+	set(requirements_file "${WEBBRIDGE_ROOT_DIR}/requirements.txt")
+
+	file(SHA256 "${requirements_file}" requirements_hash)
+
+	set(need_install FALSE)
+	if(NOT EXISTS "${venv_python}")
+		message(STATUS "webbridge: creating isolated Python venv for the code generator at ${venv_dir}")
+		execute_process(
+			COMMAND "${Python_EXECUTABLE}" -m venv "${venv_dir}"
+			RESULT_VARIABLE venv_result
+		)
+		if(NOT venv_result EQUAL 0)
+			message(FATAL_ERROR "webbridge: failed to create Python venv (exit code ${venv_result})")
+		endif()
+		set(need_install TRUE)
+	elseif(NOT EXISTS "${stamp_file}")
+		set(need_install TRUE)
+	else()
+		file(READ "${stamp_file}" stamped_hash)
+		string(STRIP "${stamped_hash}" stamped_hash)
+		if(NOT stamped_hash STREQUAL requirements_hash)
+			set(need_install TRUE)
+		endif()
+	endif()
+
+	if(need_install)
+		message(STATUS "webbridge: installing code generator dependencies into venv (this may take a moment)...")
+		execute_process(
+			COMMAND "${venv_python}" -m pip install --quiet -r "${requirements_file}"
+			RESULT_VARIABLE pip_result
+		)
+		if(NOT pip_result EQUAL 0)
+			message(FATAL_ERROR "webbridge: failed to install requirements.txt into venv (exit code ${pip_result})")
+		endif()
+		file(WRITE "${stamp_file}" "${requirements_hash}")
+	endif()
+
+	set(WEBBRIDGE_PYTHON_EXECUTABLE "${venv_python}" CACHE INTERNAL "")
+endfunction()
+
 # Helper function to parse discoverer output
 function(_parse_discoverer_output discoverer_output out_var)
 	set(result)
@@ -24,10 +94,7 @@ function(_parse_discoverer_output discoverer_output out_var)
 endfunction()
 
 function(webbridge_generate)
-	# Check Python availability
-	if(NOT Python_EXECUTABLE)
-		find_package(Python REQUIRED)
-	endif()
+	_webbridge_ensure_python_env()
 
 	set(options AUTO)
 	set(oneValueArgs TARGET OUTPUT_DIR LANGUAGE FILE CLASS_NAME)
@@ -95,7 +162,7 @@ function(webbridge_generate)
 
 		if(header_files)
 			execute_process(
-				COMMAND ${Python_EXECUTABLE}
+				COMMAND ${WEBBRIDGE_PYTHON_EXECUTABLE}
 				${WEBBRIDGE_ROOT_DIR}/tools/discoverer.py
 					${header_files}
 				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -120,7 +187,7 @@ function(webbridge_generate)
 		endforeach()
 
 		execute_process(
-			COMMAND ${Python_EXECUTABLE}
+			COMMAND ${WEBBRIDGE_PYTHON_EXECUTABLE}
 			${WEBBRIDGE_ROOT_DIR}/tools/discoverer.py
 				${abs_files}
 			WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -189,7 +256,7 @@ function(webbridge_generate)
 	list(LENGTH all_files file_count)
 	add_custom_command(
 		OUTPUT ${all_output_files}
-		COMMAND ${Python_EXECUTABLE}
+		COMMAND ${WEBBRIDGE_PYTHON_EXECUTABLE}
 			${WEBBRIDGE_ROOT_DIR}/tools/generate.py
 			--batch
 			${batch_args}

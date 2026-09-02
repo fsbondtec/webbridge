@@ -41,10 +41,10 @@ The solution is based on **webview** (C++ wrapper for Microsoft WebView2/Chromiu
 **Prerequisites:**
 
 - CMake 3.26+
-- A C++20 compiler (currently Windows/MSVC only, via WebView2)
-- Python 3 with `tree-sitter`, `tree-sitter-cpp`, and `jinja2` available at CMake configure time (used by the code generator — `pip install -r requirements.txt` covers this; see that file for exact versions)
+- A C++20 compiler (currently Windows/MSVC only, via WebView2 — Visual Studio 2022)
+- Python 3 on PATH
 
-No Conan, vcpkg, or any other package manager is required to build the library itself — both of its C++ dependencies (`nlohmann_json`, `webview`) are fetched by CMake's own `FetchContent`, the same way webbridge itself is meant to be pulled into your project.
+No Conan, vcpkg, or any other package manager is required to build the library itself — both of its C++ dependencies (`nlohmann_json`, `webview`) are fetched by CMake's own `FetchContent`, the same way webbridge itself is meant to be pulled into your project. You also don't need to manually install the code generator's Python packages (`jinja2`, `tree-sitter`, `tree-sitter-cpp`): the first time `webbridge_generate()` runs, CMake creates an isolated venv under your build directory and installs `requirements.txt` into it automatically (re-installing only if `requirements.txt` changes). Set `-DWEBBRIDGE_SKIP_AUTO_PYENV=ON` to skip this and use your own `Python_EXECUTABLE` directly instead — useful for CI images that already manage their own environment.
 
 Pull webbridge in via `FetchContent` and link against it:
 
@@ -75,6 +75,21 @@ webbridge_generate(
 ## Building this repository
 
 Cloning this repo and running `configure.bat` / `build.bat` from the repository root builds the `webbridge` library **and** the example application together (`WEBBRIDGE_BUILD_EXAMPLES` defaults to on when this repo is the top-level project). See [examples/demo/README.md](examples/demo/README.md) for prerequisites, setup, and how to run the built app.
+
+The recommended way to configure/build directly (what `configure.bat`/`build.bat` do under the hood) uses the checked-in `CMakePresets.json`, so you never need to know the exact generator/architecture flags:
+
+```bash
+cmake --preset windows-vs2022
+cmake --build --preset windows-vs2022-debug
+# or: cmake --build --preset windows-vs2022-release
+```
+
+If you'd rather not use presets, the equivalent raw commands are:
+
+```bash
+cmake -B build -S . -G "Visual Studio 17 2022" -A x64
+cmake --build build --config Debug
+```
 
 ## Concepts
 
