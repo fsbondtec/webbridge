@@ -37,8 +37,12 @@ endforeach()
 
 if(NEED_GENERATION)
 	message(STATUS "Generating TypeScript implementations at configuration time...")
+	# webbridge_generate() (below, line ~61) also does this, but that's too
+	# late - this block runs first and needs WEBBRIDGE_PYTHON_EXECUTABLE
+	# (and the venv it points at) to already exist.
+	_webbridge_ensure_python_env()
 	execute_process(
-		COMMAND ${Python_EXECUTABLE}
+		COMMAND ${WEBBRIDGE_PYTHON_EXECUTABLE}
 			${CMAKE_SOURCE_DIR}/tools/generate.py
 			--batch
 			${BATCH_ARGS}
