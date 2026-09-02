@@ -44,8 +44,9 @@ This repo contains **webbridge** itself, which can be used as an external librar
 
 - **Visual Studio 2022** with C++ Desktop Development (MSVC compiler)
 - **CMake 3.26+**
-- **Python 3** (installed on your PATH)
-- **Node.js** (for frontend build)
+- **Python 3** (for the code generator)
+- **Node.js** (for the frontend build)
+- **Microsoft Edge WebView2 Runtime** (usually preinstalled on Windows 10/11)
 
 To use WebBridge, no Conan or vcpkg needed. All C++/Python dependencies are fetched and installed automatically by CMake. 
 Pulling webbridge in via `FetchContent` only fetches *its own* dependencies, not the demo's extra ones. 
