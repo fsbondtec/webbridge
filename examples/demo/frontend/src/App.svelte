@@ -19,14 +19,6 @@
   $: status = obj?.status;
   $: pod = obj?.pod;
 
-  // Hello World state
-  let helloObj: HelloWorld | null = null;
-  let nameInput = 'World';
-
-  // Hello World store subscriptions
-  $: helloMessage = helloObj?.message;
-  $: helloGreetCount = helloObj?.greetCount;
-
   function log(msg: string, type: 'info' | 'success' | 'error' = 'info') {
     const timestamp = new Date().toLocaleTimeString();
     const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
@@ -75,74 +67,7 @@
     if (obj) {
       obj.destroy();
     }
-    if (helloObj) {
-      helloObj.destroy();
-    }
   });
-
-  async function createHelloWorld() {
-    try {
-      log('Creating HelloWorld...', 'info');
-
-      const newObj = await HelloWorld.create('Demo Author');
-      log(`HelloWorld created: ${newObj.handle}`, 'success');
-      log(`Instance constant author: ${newObj.author}`, 'info');
-
-      newObj.greeted.on((greetedName) => {
-        log(`🔔 greeted event received: name=${greetedName}`);
-      });
-
-      helloObj = newObj;
-    } catch (error) {
-      log(`Failed to create HelloWorld: ${error}`, 'error');
-    }
-  }
-
-  function destroyHelloWorld() {
-    if (!helloObj) {
-      log('No HelloWorld to destroy!', 'error');
-      return;
-    }
-
-    try {
-      const objToDestroy = helloObj;
-      helloObj = null;
-      objToDestroy.destroy();
-      log('HelloWorld destroyed', 'success');
-    } catch (error) {
-      log(`Failed to destroy HelloWorld: ${error}`, 'error');
-    }
-  }
-
-  async function callGreet() {
-    if (!helloObj) {
-      log('No HelloWorld object!', 'error');
-      return;
-    }
-
-    try {
-      log(`Calling greet('${nameInput}')...`, 'info');
-      await helloObj.greet(nameInput);
-      log('greet() completed', 'success');
-    } catch (error) {
-      log(`greet() failed: ${error}`, 'error');
-    }
-  }
-
-  async function callSlowGreet() {
-    if (!helloObj) {
-      log('No HelloWorld object!', 'error');
-      return;
-    }
-
-    try {
-      log(`Calling slowGreet('${nameInput}') (async, ~1s on a worker thread)...`, 'info');
-      await helloObj.slowGreet(nameInput);
-      log('slowGreet() completed', 'success');
-    } catch (error) {
-      log(`slowGreet() failed: ${error}`, 'error');
-    }
-  }
 
   async function callBar() {
     if (!obj) {
@@ -418,59 +343,6 @@
             🚀 Run Benchmark (TestObject)
           </button>
         </div>
-      </div>
-    </div>
-
-    <!-- Hello World Section -->
-    <div class="card bg-base-100 shadow-xl mb-6">
-      <div class="card-body">
-        <h2 class="card-title text-2xl">👋 Hello World (learning example)</h2>
-
-        <div class="flex flex-wrap items-center gap-2 mb-4">
-          <input
-            type="text"
-            class="input input-bordered w-full max-w-xs"
-            placeholder="Name to greet"
-            bind:value={nameInput}
-          />
-          <button class="btn btn-primary" on:click={createHelloWorld} disabled={helloObj !== null}>
-            Create
-          </button>
-          <button class="btn btn-accent" on:click={callGreet} disabled={helloObj === null}>
-            Greet
-          </button>
-          <button class="btn btn-accent" on:click={callSlowGreet} disabled={helloObj === null}>
-            Slow Greet (async)
-          </button>
-          <button class="btn btn-secondary" on:click={destroyHelloWorld} disabled={helloObj === null}>
-            Destroy
-          </button>
-        </div>
-
-        {#if helloObj && helloMessage && helloGreetCount}
-          <div class="grid gap-3">
-            <div class="stats shadow">
-              <div class="stat">
-                <div class="stat-title">message</div>
-                <div class="stat-value text-primary text-2xl font-mono">{$helloMessage}</div>
-              </div>
-            </div>
-
-            <div class="stats shadow">
-              <div class="stat">
-                <div class="stat-title">greetCount</div>
-                <div class="stat-value text-accent text-2xl">{$helloGreetCount}</div>
-              </div>
-            </div>
-          </div>
-        {:else}
-          <div class="alert">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <span>No HelloWorld object created yet.</span>
-          </div>
-        {/if}
       </div>
     </div>
 

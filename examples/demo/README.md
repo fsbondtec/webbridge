@@ -1,6 +1,6 @@
 # WebBridge Demo
 
-This is the example application from the root [README.md](../../README.md): a full desktop app (MyObject/TestObject/HelloWorld exposed to a Svelte frontend) demonstrating every WebBridge feature — properties, methods (sync + async), events, constants, and error handling. It also serves as this repo's proof that the `webbridge` library actually works when consumed like any other CMake target (see `src/CMakeLists.txt`'s `target_link_libraries(... webbridge::webbridge ...)`).
+This is the example application from the root [README.md](../../README.md): a full desktop app (MyObject/TestObject exposed to a Svelte frontend) demonstrating every WebBridge feature — properties, methods (sync + async), events, constants, and error handling. It also serves as this repo's proof that the `webbridge` library actually works when consumed like any other CMake target (see `src/CMakeLists.txt`'s `target_link_libraries(... webbridge::webbridge ...)`).
 
 ## Prerequisites
 
@@ -10,7 +10,7 @@ This is the example application from the root [README.md](../../README.md): a fu
 - **Node.js** (for the frontend build)
 - **Microsoft Edge WebView2 Runtime** (usually preinstalled on Windows 10/11)
 
-No Conan, vcpkg, or Conda needed — every C++ dependency (both the library's and this example's) is fetched by CMake's own `FetchContent`, and the build uses the Visual Studio generator directly (no separate Ninja install or Developer Command Prompt required).
+No Conan, vcpkg, or Conda needed — every C++/Python dependency (both the library's and this example's) is fetched and installed automatically by CMake.
 
 ## Setup
 
@@ -18,21 +18,17 @@ No Conan, vcpkg, or Conda needed — every C++ dependency (both the library's an
 
 ```bash
 configure.bat
+build.bat
 ```
 
-`configure.bat` runs `cmake --preset windows-vs2022` (see the root `CMakePresets.json`), which generates the CMake build for the `webbridge` library and this example together, fetching every C++ dependency via `FetchContent` along the way. It also provisions an isolated Python venv for the code generator on first configure — no manual `pip install` step needed.
+`configure.bat` runs `cmake --preset windows-vs2022` (see the root `CMakePresets.json`) and provisions an isolated Python venv for the code generator automatically — no manual `pip install` step needed.
 
-Then build:
+Build variants:
 
 ```bash
-# Build Debug (default)
-build.bat
-
-# Build Release
-build.bat --release
-
-# Rebuild (clean first)
-build.bat --rebuild --release
+build.bat                      # Debug (default)
+build.bat --release            # Release
+build.bat --rebuild --release  # Clean rebuild
 ```
 
 **VS Code Integration:**
@@ -41,7 +37,7 @@ build.bat --rebuild --release
 
 **Note:** The frontend (Vite + Svelte 5 + TypeScript, in `frontend/`) is built automatically as part of the CMake build. The compiled assets are embedded into the executable via CMakeRC and served over a local HTTP server by `ResourceServer`.
 
-**3. Run the application**
+## Run the application
 
 Because this example is built via `add_subdirectory(examples/demo)` from the root, its build output lives one level deeper than a top-level target would:
 

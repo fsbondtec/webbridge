@@ -29,16 +29,27 @@ property<bool> aBool;
 
 The solution is based on **webview** (C++ wrapper for Microsoft WebView2/Chromium) and a **Python code generator** (`tools/generate.py`) that uses **tree-sitter** to analyze C++ classes and automatically generate C++ registration headers and TypeScript type definitions. The build process automatically invokes the code generator via CMake, making the workflow seamless. Code generation is required because C++26 reflection is not yet available.
 
+## Repository layout
+
+- `src/webbridge/` — the library itself (this is what you'd add to your own project)
+- `cmake/webbridge.cmake` — the `webbridge_generate()` CMake function that drives the code generator
+- `tools/` — the Python/tree-sitter code generator
+- `examples/demo/` — the full example application (C++ + Svelte frontend) exercising every feature; see [examples/demo/README.md](examples/demo/README.md) to build and run it
+
 ## Getting started
 
-This repo contains **webbridge** itself, which can be used as external library and a examples folder which shows a demo.
+This repo contains **webbridge** itself, which can be used as an external library. Also an examples folder is provided, which shows a demo.
 
 ### Prerequisites
 
 - **Visual Studio 2022** with C++ Desktop Development (MSVC compiler)
 - **CMake 3.26+**
-- **Python 3** (installed on path)
+- **Python 3** (installed on your PATH)
 - **Node.js** (for frontend build)
+
+To use WebBridge, no Conan or vcpkg needed. All C++/Python dependencies are fetched and installed automatically by CMake. 
+Pulling webbridge in via `FetchContent` only fetches *its own* dependencies, not the demo's extra ones. 
+This repo also ships a `CMakePresets.json`, so `cmake --preset windows-vs2022` works without needing to know the exact generator/architecture flags.
 
 ### Using it in your own C++ project
 
@@ -56,7 +67,7 @@ FetchContent_MakeAvailable(webbridge)
 target_link_libraries(your_target PRIVATE webbridge::webbridge)
 ```
 
-Also add this webbrige generator to your  `CMakeLists.txt` :
+Also add this webbridge generator to your `CMakeLists.txt` :
 ```cmake
 webbridge_generate(
     TARGET your_target
@@ -65,7 +76,7 @@ webbridge_generate(
 )
 ```
 
-Change `your_target` to your project folders name.
+Replace `your_target` with the name of your own CMake target.
 
 In your project:
 1. Write a class that inherits from `webbridge::object` — see [Minimal Example](#minimal-example) below for what this looks like.
@@ -75,19 +86,27 @@ In your project:
 webbridge::register_type<YourClass>(&your_webview);
 ```
 
-Building works with 2 simple `cmake` commands:
+First build with:
 
 ```bash
 cmake -B build -S .
-cmake --build build --config Debug
+```
+Then choose a build variant:
+```bash
+cmake --build build --config Debug                      # Debug
+cmake --build build --config Release                    # Release
+cmake --build build --config Release --clean-first      # Clean rebuild
 ```
 And executing with:
 ```bash
+# Debug build (with DevTools):
 build\Debug\your_target.exe
+# Release build (without DevTools):
+build\Release\your_target.exe
 ```
 
 ### Running the demo
-If you downloaded the entire webbridge folder you can test the demo.
+If you cloned the repository you can test the demo.
 Open a terminal **in this folder** and run:
 
 ```bash
@@ -103,13 +122,6 @@ build\examples\demo\src\Debug\webbridge_hackathon.exe
 
 For Release builds, troubleshooting, or what each step actually does, see [examples/demo/README.md](examples/demo/README.md).
 
-
-## Repository layout
-
-- `src/webbridge/` — the library itself (this is what you'd add to your own project)
-- `cmake/webbridge.cmake` — the `webbridge_generate()` CMake function that drives the code generator
-- `tools/` — the Python/tree-sitter code generator
-- `examples/demo/` — the full example application (C++ + Svelte frontend) exercising every feature; see [examples/demo/README.md](examples/demo/README.md) to build and run it
 
 ## Concepts
 

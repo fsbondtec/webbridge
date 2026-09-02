@@ -9,14 +9,12 @@ set(webbridge_hackathon_SOURCES
 	main.cpp
 	MyObject.cpp
 	TestObject.cpp
-	HelloWorld.cpp
 	ResourceServer.h
 )
 
 set(webbridge_hackathon_TO_REGISTRATION_SOURCES
 	MyObject.h
 	TestObject.h
-	HelloWorld.h
 )
 
 add_executable(webbridge_hackathon WIN32

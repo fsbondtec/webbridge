@@ -1,6 +1,5 @@
 #include "MyObject.h"
 #include "TestObject.h"
-#include "HelloWorld.h"
 #include "ResourceServer.h"
 #include "webbridge/Object.h"
 #include "webbridge/error.h"
@@ -59,7 +58,6 @@ int WINAPI WinMain(HINSTANCE /*hInst*/, HINSTANCE /*hPrevInst*/,
 		// Register type -> needs to be created in js
 		webbridge::register_type<MyObject>(&w);
 		webbridge::register_type<TestObject>(&w);
-		webbridge::register_type<HelloWorld>(&w);
 
 		// Navigate FIRST so the frontend (with WebbridgeRuntime) is loaded
 		w.navigate(server.get_url());
