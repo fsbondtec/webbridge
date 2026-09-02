@@ -2,6 +2,7 @@
   import { onMount, onDestroy } from 'svelte';
   import { MyObject } from './generated/MyObject';
   import { TestObject } from './generated/TestObject';
+  import { HelloWorld } from './generated/HelloWorld';
   import bildUrl from './assets/bild.jpg';
 
   // State

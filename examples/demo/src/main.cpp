@@ -2,7 +2,7 @@
 #include "TestObject.h"
 #include "ResourceServer.h"
 #include "webbridge/Object.h"
-#include "webbridge/Error.h"
+#include "webbridge/error.h"
 #include <webview/webview.h>
 #include <portable-file-dialogs.h>
 #include <iostream>

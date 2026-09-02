@@ -29,72 +29,100 @@ property<bool> aBool;
 
 The solution is based on **webview** (C++ wrapper for Microsoft WebView2/Chromium) and a **Python code generator** (`tools/generate.py`) that uses **tree-sitter** to analyze C++ classes and automatically generate C++ registration headers and TypeScript type definitions. The build process automatically invokes the code generator via CMake, making the workflow seamless. Code generation is required because C++26 reflection is not yet available.
 
-## Getting Started
+## Repository layout
+
+- `src/webbridge/` — the library itself (this is what you'd add to your own project)
+- `cmake/webbridge.cmake` — the `webbridge_generate()` CMake function that drives the code generator
+- `tools/` — the Python/tree-sitter code generator
+- `examples/demo/` — the full example application (C++ + Svelte frontend) exercising every feature; see [examples/demo/README.md](examples/demo/README.md) to build and run it
+
+## Getting started
+
+This repo contains **webbridge** itself, which can be used as an external library. Also an examples folder is provided, which shows a demo.
 
 ### Prerequisites
 
 - **Visual Studio 2022** with C++ Desktop Development (MSVC compiler)
-- **Conan 2** (`pip install conan`)
 - **CMake 3.26+**
-- **Anaconda3** or Miniconda
-- **Node.js** (for frontend build)
+- **Python 3** (for the code generator)
+- **Node.js** (for the frontend build)
 - **Microsoft Edge WebView2 Runtime** (usually preinstalled on Windows 10/11)
-- **Ninja** (included in conda environment)
 
-### Setup
+To use WebBridge, no Conan or vcpkg needed. All C++/Python dependencies are fetched and installed automatically by CMake. 
+Pulling webbridge in via `FetchContent` only fetches *its own* dependencies, not the demo's extra ones. 
+This repo also ships a `CMakePresets.json`, so `cmake --preset windows-vs2022` works without needing to know the exact generator/architecture flags.
 
-**1. Create Conda environment**
+### Using it in your own C++ project
 
-The environment includes Python 3.12 and the required packages for the code generator (tree-sitter, jinja2):
+Add this to your project's `CMakeLists.txt` to fetch from the git repository:
 
-```bash
-conda env create -f environment.yml
-# or, if the environment already exists:
-conda env update --file environment.yml --name webbridge_hackathon --prune
+```cmake
+include(FetchContent)
+FetchContent_Declare(
+    webbridge
+    GIT_REPOSITORY https://github.com/fsbondtec/webbridge.git
+    GIT_TAG v1.0.0
+)
+FetchContent_MakeAvailable(webbridge)
+
+target_link_libraries(your_target PRIVATE webbridge::webbridge)
 ```
 
-**2. Configure and build**
+Also add this webbridge generator to your `CMakeLists.txt` :
+```cmake
+webbridge_generate(
+    TARGET your_target
+    AUTO
+    LANGUAGE cpp
+)
+```
 
-The `configure.bat` script will:
-- Activate the Conda environment
-- Install C++ dependencies via Conan (fmt, nlohmann_json, httplib, portable-file-dialogs, etc.)
-- Initialize MSVC environment for Ninja
-- Generate CMake build configuration with Ninja Multi-Config for all build types (Debug, Release, RelWithDebInfo, MinSizeRel)
+Replace `your_target` with the name of your own CMake target.
+
+In your project:
+1. Write a class that inherits from `webbridge::object` — see [Minimal Example](#minimal-example) below for what this looks like.
+
+2. Register it where you create your webview window:
+```cpp
+webbridge::register_type<YourClass>(&your_webview);
+```
+
+First build with:
+
+```bash
+cmake -B build -S .
+```
+Then choose a build variant:
+```bash
+cmake --build build --config Debug                      # Debug
+cmake --build build --config Release                    # Release
+cmake --build build --config Release --clean-first      # Clean rebuild
+```
+And executing with:
+```bash
+# Debug build (with DevTools):
+build\Debug\your_target.exe
+# Release build (without DevTools):
+build\Release\your_target.exe
+```
+
+### Running the demo
+If you cloned the repository you can test the demo.
+Open a terminal **in this folder** and run:
 
 ```bash
 configure.bat
-```
-
-Then build using the provided build script:
-
-```bash
-# Build Debug (default)
 build.bat
-
-# Build Release
-build.bat --release
-
-# Rebuild (clean first)
-build.bat --rebuild --release
 ```
 
-**VS Code Integration:**
-- **Build tasks**: Press `Ctrl+Shift+B` to access build tasks (Build, Rebuild, Clean, etc.)
-- **Debugging**: Press `F5` to build and debug - launch configurations are available in `.vscode/launch.json`
-
-**Note:** The frontend (Vite + Svelte 5 + TypeScript) is automatically built as part of the CMake build process. The compiled assets are embedded into the C++ application via CMakeRC and served over HTTP by the `ResourceServer`.
-
-**3. Run the application**
-
-After a successful build:
+`configure.bat` downloads everything else it needs automatically (no separate install steps, no accounts, nothing to configure by hand). Once `build.bat` finishes, launch the app:
 
 ```bash
-# Debug build (with DevTools):
-build\src\Debug\webbridge_hackathon.exe
-
-# Release build (without DevTools):
-build\src\Release\webbridge_hackathon.exe
+build\examples\demo\src\Debug\webbridge_hackathon.exe
 ```
+
+For Release builds, troubleshooting, or what each step actually does, see [examples/demo/README.md](examples/demo/README.md).
+
 
 ## Concepts
 
@@ -252,6 +280,7 @@ The current implementation has the following limitations:
 
 - Overloaded constructors and methods are not supported.
 - Enums are automatically detected and exported to TypeScript, but complex enum use cases may require additional handling.
+- Currently Windows-only (relies on Microsoft WebView2).
 
 ## License
 

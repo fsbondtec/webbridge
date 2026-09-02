@@ -21,12 +21,6 @@ C++ DEPENDENCIES (via Conan)
    License: MIT License
    Copyright: Pranav Srinivas Kumar
 
-4. nlohmann_json - JSON for Modern C++
-   https://github.com/nlohmann/json
-   Version: 3.11.3
-   License: MIT License
-   Copyright: Niels Lohmann
-
 5. cpp-httplib - A C++ header-only HTTP/HTTPS server and client library
    https://github.com/yhirose/cpp-httplib
    Version: 0.18.1
@@ -43,6 +37,12 @@ C++ DEPENDENCIES (via Conan)
 
 CMAKE DEPENDENCIES (via FetchContent)
 -------------------------------------
+
+8. nlohmann_json - JSON for Modern C++
+   https://github.com/nlohmann/json
+   Version: 3.11.3
+   License: MIT License
+   Copyright: Niels Lohmann
 
 9. CMakeRC (cmrc) - A Resource Compiler in a Single CMake Script
    https://github.com/vector-of-bool/cmrc

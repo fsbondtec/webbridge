@@ -24,17 +24,6 @@ CTestTestfile.cmake
 _deps/
 *-prefix/
 
-# Conan Package Manager
-conan.lock
-conanbuildinfo.*
-conaninfo.txt
-graph_info.json
-Find*.cmake
-conan_paths.*
-activate_run.*
-deactivate_run.*
-environment_run.*
-
 # Python
 venv/
 .venv/
@@ -44,14 +33,14 @@ __pycache__/
 .pytest_cache/
 
 # Frontend - Node.js
-frontend/node_modules/
-frontend/dist/
-frontend/dist-ssr/
-frontend/*.local
+examples/demo/frontend/node_modules/
+examples/demo/frontend/dist/
+examples/demo/frontend/dist-ssr/
+examples/demo/frontend/*.local
 
 # Frontend - Auto-generated
-frontend/src/generated/
-frontend/logs/
+examples/demo/frontend/src/generated/
+examples/demo/frontend/logs/
 
 # Frontend - SvelteKit
 .svelte-kit/

@@ -1,10 +1,13 @@
 find_program(NPM_EXECUTABLE npm REQUIRED)
 message(STATUS "Found npm: ${NPM_EXECUTABLE}")
 
-# Generate TypeScript implementation files for C++ classes
+# Generate TypeScript implementation files for C++ classes.
+# Resolved relative to this file (examples/demo/frontend/), not CMAKE_SOURCE_DIR,
+# since CMAKE_SOURCE_DIR is the webbridge library's own root, not this example's.
 set(WEBBRIDGE_HEADER_FILES
-	${CMAKE_SOURCE_DIR}/src/MyObject.h
-	${CMAKE_SOURCE_DIR}/src/TestObject.h
+	${CMAKE_CURRENT_SOURCE_DIR}/../src/MyObject.h
+	${CMAKE_CURRENT_SOURCE_DIR}/../src/TestObject.h
+	${CMAKE_CURRENT_SOURCE_DIR}/../src/HelloWorld.h
 )
 
 # Output to frontend/src/generated directory (gitignored)
@@ -34,8 +37,12 @@ endforeach()
 
 if(NEED_GENERATION)
 	message(STATUS "Generating TypeScript implementations at configuration time...")
+	# webbridge_generate() (below, line ~61) also does this, but that's too
+	# late - this block runs first and needs WEBBRIDGE_PYTHON_EXECUTABLE
+	# (and the venv it points at) to already exist.
+	_webbridge_ensure_python_env()
 	execute_process(
-		COMMAND ${Python_EXECUTABLE}
+		COMMAND ${WEBBRIDGE_PYTHON_EXECUTABLE}
 			${CMAKE_SOURCE_DIR}/tools/generate.py
 			--batch
 			${BATCH_ARGS}

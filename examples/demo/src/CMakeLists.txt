@@ -1,15 +1,7 @@
-find_package(fmt REQUIRED)
-find_package(nlohmann_json REQUIRED)
-find_package(httplib REQUIRED)
-find_package(portable-file-dialogs REQUIRED)
-
-FetchContent_Declare(
-	webview
-	GIT_REPOSITORY https://github.com/webview/webview
-	GIT_TAG 0.12.0)
-FetchContent_MakeAvailable(webview)
-
-project(webbridge_hackathon LANGUAGES CXX)
+# fmt, httplib, portable_file_dialogs, and (transitively via webbridge)
+# nlohmann_json are all FetchContent'd by examples/demo/CMakeLists.txt /
+# root CMakeLists.txt - do not find_package() any of them here, that would
+# collide with the already-defined targets of the same name.
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -18,23 +10,6 @@ set(webbridge_hackathon_SOURCES
 	MyObject.cpp
 	TestObject.cpp
 	ResourceServer.h
-	webbridge/impl/error_handler.cpp
-)
-
-set(webbridge_hackathon_WebBridge_SOURCES
-	webbridge/impl/binding_helpers.h
-	webbridge/impl/concepts.h
-	webbridge/impl/error_handler.h
-	webbridge/impl/error_handler.cpp
-	webbridge/impl/event_impl.h
-	webbridge/impl/object_registry.h
-	webbridge/impl/property_impl.h
-	webbridge/impl/thread_pool.h
-	webbridge/impl/thread_pool.cpp
-	webbridge/impl/type_registration.h
-	webbridge/impl/type_registration.cpp
-	webbridge/error.h
-	webbridge/object.h
 )
 
 set(webbridge_hackathon_TO_REGISTRATION_SOURCES
@@ -44,18 +19,17 @@ set(webbridge_hackathon_TO_REGISTRATION_SOURCES
 
 add_executable(webbridge_hackathon WIN32
 	${webbridge_hackathon_SOURCES}
-	${webbridge_hackathon_WebBridge_SOURCES}
 	${webbridge_hackathon_TO_REGISTRATION_SOURCES}
 )
 
 target_compile_features(webbridge_hackathon PRIVATE cxx_std_20)
 
 target_link_libraries(webbridge_hackathon PRIVATE
-	webview::core
+	webbridge::webbridge
 	fmt::fmt
 	nlohmann_json::nlohmann_json
 	httplib::httplib
-	portable-file-dialogs::portable-file-dialogs
+	portable_file_dialogs
 	frontend_resources
 )
 

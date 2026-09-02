@@ -5,10 +5,9 @@
 		{
 			"label": "Build: Debug",
 			"type": "shell",
-			"command": "cmd",
+			"command": "cmake",
 			"args": [
-				"/c",
-				"build\\generators\\conanbuild.bat && cmake --build build --config Debug"
+				"--build", "build", "--config", "Debug"
 			],
 			"group": {
 				"kind": "build",
@@ -28,10 +27,9 @@
 		{
 			"label": "Build: Release",
 			"type": "shell",
-			"command": "cmd",
+			"command": "cmake",
 			"args": [
-				"/c",
-				"build\\generators\\conanbuild.bat && cmake --build build --config Release"
+				"--build", "build", "--config", "Release"
 			],
 			"group": "build",
 			"problemMatcher": "$msCompile",
@@ -49,10 +47,9 @@
 		{
 			"label": "Rebuild: Debug",
 			"type": "shell",
-			"command": "cmd",
+			"command": "cmake",
 			"args": [
-				"/c",
-				"build\\generators\\conanbuild.bat && cmake --build build --config Debug --clean-first"
+				"--build", "build", "--config", "Debug", "--clean-first"
 			],
 			"group": "build",
 			"problemMatcher": "$msCompile",
@@ -69,10 +66,9 @@
 		{
 			"label": "Rebuild: Release",
 			"type": "shell",
-			"command": "cmd",
+			"command": "cmake",
 			"args": [
-				"/c",
-				"build\\generators\\conanbuild.bat && cmake --build build --config Release --clean-first"
+				"--build", "build", "--config", "Release", "--clean-first"
 			],
 			"group": "build",
 			"problemMatcher": "$msCompile",
@@ -137,7 +133,7 @@
 				"npm install && npm run build"
 			],
 			"options": {
-				"cwd": "${workspaceFolder}/frontend"
+				"cwd": "${workspaceFolder}/examples/demo/frontend"
 			},
 			"group": "build",
 			"problemMatcher": [],
@@ -156,7 +152,7 @@
 				"if exist dist rmdir /s /q dist && npm run build"
 			],
 			"options": {
-				"cwd": "${workspaceFolder}/frontend"
+				"cwd": "${workspaceFolder}/examples/demo/frontend"
 			},
 			"group": "build",
 			"problemMatcher": [],

@@ -50,12 +50,6 @@ IF %REBUILD%==1 (
 )
 ECHO.
 
-CALL build\generators\conanbuild.bat
-IF ERRORLEVEL 1 (
-    ECHO Error: Failed to setup Conan build environment
-    EXIT /B 1
-)
-
 IF %REBUILD%==1 (
     cmake --build build --config %CONFIG% --clean-first
 ) ELSE (
