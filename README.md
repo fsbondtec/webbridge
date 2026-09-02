@@ -29,39 +29,20 @@ property<bool> aBool;
 
 The solution is based on **webview** (C++ wrapper for Microsoft WebView2/Chromium) and a **Python code generator** (`tools/generate.py`) that uses **tree-sitter** to analyze C++ classes and automatically generate C++ registration headers and TypeScript type definitions. The build process automatically invokes the code generator via CMake, making the workflow seamless. Code generation is required because C++26 reflection is not yet available.
 
-## Quick Start
+## Getting started
 
-This repo contains two things: **webbridge itself** (a small C++ library, `src/webbridge/`) and **a full example app** built with it (`examples/demo/`), so you can see it working before deciding to use it. Pick whichever you're here for:
+This repo contains **webbridge** itself, which can be used as external library and a examples folder which shows a demo.
 
-### Option A — Just want to see it run?
+### Prerequisites
 
-Install these four things first (all free, all standard tools — skip anything you already have):
+- **Visual Studio 2022** with C++ Desktop Development (MSVC compiler)
+- **CMake 3.26+**
+- **Python 3** (installed on path)
+- **Node.js** (for frontend build)
 
-| Tool | Why you need it | Get it |
-|---|---|---|
-| Visual Studio 2022 | The C++ compiler (install the **"Desktop development with C++"** workload) | [visualstudio.microsoft.com](https://visualstudio.microsoft.com/) |
-| CMake 3.26+ | Drives the whole build | [cmake.org/download](https://cmake.org/download/) |
-| Python 3 | Just needs to be on your PATH — its packages install themselves automatically, nothing to do by hand | [python.org/downloads](https://www.python.org/downloads/) |
-| Node.js | Builds the demo's web UI | [nodejs.org](https://nodejs.org/) |
+### Using it in your own C++ project
 
-Then open a terminal **in this folder** and run:
-
-```bash
-configure.bat
-build.bat
-```
-
-`configure.bat` downloads everything else it needs automatically (no separate install steps, no accounts, nothing to configure by hand). Once `build.bat` finishes, launch the app:
-
-```bash
-build\examples\demo\src\Debug\webbridge_hackathon.exe
-```
-
-That's it. For Release builds, troubleshooting, or what each step actually does, see [examples/demo/README.md](examples/demo/README.md).
-
-### Option B — Want to add webbridge to your own C++ project?
-
-You don't need to download anything by hand, or even find a browser and click a download button. Just add this to your own project's `CMakeLists.txt` — it tells CMake to fetch webbridge automatically the next time you configure your project (this is a standard, built-in CMake feature called `FetchContent`, not anything webbridge-specific):
+Add this to your project's `CMakeLists.txt` to fetch from the git repository:
 
 ```cmake
 include(FetchContent)
@@ -75,33 +56,52 @@ FetchContent_MakeAvailable(webbridge)
 target_link_libraries(your_target PRIVATE webbridge::webbridge)
 ```
 
-You'll need the same first three tools from the table above (Visual Studio 2022, CMake 3.26+, Python 3 on PATH) — Node.js is only needed if you also want a web frontend like the demo has. Everything else — webbridge's own C++ dependencies, and the Python packages its code generator needs — is downloaded and installed automatically the first time you configure. No accounts, no extra package managers, no manual `pip install`.
+Also add this webbrige generator to your  `CMakeLists.txt` :
+```cmake
+webbridge_generate(
+    TARGET your_target
+    AUTO
+    LANGUAGE cpp
+)
+```
 
-Once it's linked in, exposing one of your own classes to JavaScript takes three steps:
+Change `your_target` to your project folders name.
 
+In your project:
 1. Write a class that inherits from `webbridge::object` — see [Minimal Example](#minimal-example) below for what this looks like.
-2. Tell CMake to generate the glue code for it:
-   ```cmake
-   webbridge_generate(
-       TARGET your_target
-       AUTO
-       LANGUAGE cpp
-   )
-   ```
-3. Register it where you create your webview window:
-   ```cpp
-   webbridge::register_type<YourClass>(&your_webview);
-   ```
 
-CMake re-generates the glue code automatically whenever you change the class — nothing to re-run by hand.
+2. Register it where you create your webview window:
+```cpp
+webbridge::register_type<YourClass>(&your_webview);
+```
 
-Building and running is nothing webbridge-specific at this point — it's your own project:
+Building works with 2 simple `cmake` commands:
 
 ```bash
 cmake -B build -S .
 cmake --build build --config Debug
+```
+And executing with:
+```bash
 build\Debug\your_target.exe
 ```
+
+### Running the demo
+If you downloaded the entire webbridge folder you can test the demo.
+Open a terminal **in this folder** and run:
+
+```bash
+configure.bat
+build.bat
+```
+
+`configure.bat` downloads everything else it needs automatically (no separate install steps, no accounts, nothing to configure by hand). Once `build.bat` finishes, launch the app:
+
+```bash
+build\examples\demo\src\Debug\webbridge_hackathon.exe
+```
+
+For Release builds, troubleshooting, or what each step actually does, see [examples/demo/README.md](examples/demo/README.md).
 
 
 ## Repository layout
@@ -110,29 +110,6 @@ build\Debug\your_target.exe
 - `cmake/webbridge.cmake` — the `webbridge_generate()` CMake function that drives the code generator
 - `tools/` — the Python/tree-sitter code generator
 - `examples/demo/` — the full example application (C++ + Svelte frontend) exercising every feature; see [examples/demo/README.md](examples/demo/README.md) to build and run it
-
-## Building this repository (more detail)
-
-Everything in [Quick Start](#quick-start) above is all you need day-to-day. This section is for anyone who wants to understand or customize the raw commands `configure.bat`/`build.bat` run under the hood — useful if you're contributing to webbridge itself, or scripting a CI pipeline.
-
-The checked-in `CMakePresets.json` means you never need to type out the exact generator/architecture flags yourself — a "preset" is just a named, saved set of CMake options:
-
-```bash
-cmake --preset windows-vs2022
-cmake --build --preset windows-vs2022-debug
-# or: cmake --build --preset windows-vs2022-release
-```
-
-If you'd rather not use presets, the equivalent raw commands are:
-
-```bash
-cmake -B build -S . -G "Visual Studio 17 2022" -A x64
-cmake --build build --config Debug
-```
-
-Either way, the built demo exe ends up at `build\examples\demo\src\Debug\webbridge_hackathon.exe` (or `...\Release\...` for a Release build) — run it directly, same as in Quick Start.
-
-Running `configure.bat`/`build.bat` from the repository root builds the `webbridge` library **and** the example application together (`WEBBRIDGE_BUILD_EXAMPLES` defaults to on when this repo is the top-level project, and off when you pull webbridge into your own project per Option B above).
 
 ## Concepts
 
